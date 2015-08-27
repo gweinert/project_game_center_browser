@@ -1,0 +1,14 @@
+
+.game-grid{
+  
+  width: 80%;
+  height: 80%;
+  margin: 0 auto;
+}
+
+.cell {
+  width: 4%;
+  height: 20px;
+  border: solid 1px black;
+  display: inline-block;
+}
