@@ -22,7 +22,7 @@ var view = {
     $(document).keydown(function(e) {
     switch(e.which) {
         //if/elses disallow 180 degree turnarounds
-        
+
         //right
         case 37:
           if ( controller.vel[0] == 1 && controller.snakeDivs.length > 0){
@@ -35,7 +35,7 @@ var view = {
 
         //down
         case 38:
-          if ( controller.vel[1] == 1&& controller.snakeDivs.length > 0){
+          if ( controller.vel[1] == 1 && controller.snakeDivs.length > 0){
             controller.vel = [0, 1];
           }
           else{
@@ -72,10 +72,13 @@ var view = {
   },
 
   buildSnakeFood: function(){
-    randomGridId = getRandomInt(1, 400);
-    while( randomGridId != getRandomInt){
-      randomGridId = getRandomInt(1, 400);
-    }
+    if ($('.food').length === 0) {
+      randomGridId = this.getRandomInt(1, 400);
+      while( randomGridId != controller.headPosition && controller.snakeDivs.indexOf(randomGridId) != -1){
+        randomGridId = this.getRandomInt(1, 400);
+      };
+      $('#' + randomGridId).addClass('food')
+    };
 
   },
 
@@ -92,6 +95,8 @@ var model = {};
 var controller = {
 
   snakeDivs: [],
+  updateInterval: 5000,
+  snakeInterval: setInterval(function(){ controller.updatePosition(); }, this.updateInterval),
 
   headPosition: parseInt($('.head').attr("id")),
 
@@ -106,31 +111,46 @@ var controller = {
 
   playGame: function() {
     console.log('play ball!');
-    setInterval(function(){ controller.updatePosition(); }, 500);
+    this.snakeInterval;
+
   },
 
   updatePosition: function() {
 
     // Get position of head
     // headPosition = parseInt($('.head').attr("id"));
-    headPosition = controller.headPosition;
+    controller.headPosition = parseInt($('.head').attr("id"));
 
     // Add old head position to front of snakeDivs
-    controller.snakeDivs.unshift(headPosition);
+    controller.snakeDivs.unshift(controller.headPosition);
 
     // Switch old head to snake body
     $('.head').addClass('snake-body').removeClass('head');
 
     // Update head position
-    headPosition += controller.vel[0];
-    headPosition += (controller.vel[1] * 20);
-    $('#' + headPosition).addClass('head');
+    controller.headPosition += controller.vel[0];
+    controller.headPosition += (controller.vel[1] * 20);
+    $('#' + controller.headPosition).addClass('head');
 
     // Remove tail from snakeDivs
     tail = controller.snakeDivs.pop();
     $('#' + tail).removeClass('snake-body');
 
-    console.log("update!");
+    // Check if position is snake food
+    this.eatSnakeFood();
+
+    // Spawn snake food
+    view.buildSnakeFood();
+  },
+
+  eatSnakeFood: function() {
+    if (controller.headPosition === parseInt($('.food').attr("id"))) {
+      controller.snakeDivs.push($('food').attr('id'))
+      $('.food').removeClass('food')
+      this.updateInterval *= 0.95;
+      clearInterval(snakeInterval);
+      snakeInterval;
+    };
   }
 
 }
