@@ -54,15 +54,18 @@ table {
 }
 .game-grid{
 
-  width: 400px;
-  height: 400px;
+  width: 402px;
+  height: 418px;
+  border: solid 1px black;
   margin: 0 auto;
 }
 
 .cell {
-  width: 5%;
-  height: 5%;
-  border: solid 1px black;
+  width: 20px;
+  height: 20px;
+  /*border: solid 1px black;*/
+  margin: -2px 0px 0px 0px;
+  padding: 0;
   display: inline-block;
 }
 
