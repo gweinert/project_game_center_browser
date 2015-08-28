@@ -20,11 +20,16 @@ var view = {
 
   keyListener: function() {
     $(document).keydown(function(e) {
+
     switch(e.which) {
         //if/elses disallow 180 degree turnarounds
 
         //right
         case 37:
+          if (!controller.gameStart) {
+              controller.playGame();
+              controller.gameStart = true;
+            };
           if ( controller.vel[0] == 1 && controller.snakeDivs.length > 0){
             controller.vel = [1, 0];
           }
@@ -35,6 +40,7 @@ var view = {
 
         //down
         case 38:
+
           if ( controller.vel[1] == 1 && controller.snakeDivs.length > 0){
             controller.vel = [0, 1];
           }
@@ -90,14 +96,17 @@ var view = {
 
 };
 
-var model = {};
+var model = {
+  score: 0
+};
 
 var controller = {
 
   snakeDivs: [],
   updateInterval: 500,
   snakeInterval: 1,
-  
+  gameStart: false,
+
   // snakeInterval: setInterval(function(){ controller.updatePosition(); }, this.updateInterval),
   // snakeInterval: setInterval(function(){ this.updatePosition();}, controller.updateInterval),
 
@@ -107,21 +116,51 @@ var controller = {
     view.buildGrid();
     view.placeHead();
     view.keyListener();
-    this.playGame();
   },
 
   vel: [0,0],
 
   playGame: function() {
-    console.log('play ball!');
     controller.snakeInterval = setInterval(function(){ controller.updatePosition();}, controller.updateInterval);
-    if ( controller.eatSnakeFood() ){
-      clearInterval(controller.snakeInterval);
-      controller.snakeInterval = setInterval( controller.updatePosition, controller.updateInterval);
-    }
 
     console.log(this.updateInterval);
 
+  },
+
+  checkOutOfBounds: function(nextHeadPosition) {
+    // Out of bounds if true
+
+    switch(controller.vel.join()) {
+      case "1,0":
+        console.log("MOVING RIGHT");
+        return (nextHeadPosition % 20 === 1 || isNaN(nextHeadPosition));
+        break;
+
+      case "-1,0":
+        return (nextHeadPosition % 20 === 0 || isNaN(nextHeadPosition));
+        break;
+
+      // case "0,1":
+      //   return isNaN(nextHeadPosition);
+      //   break;
+
+      // case "0,-1":
+      //   return isNaN(nextHeadPosition);
+      //   break;
+
+      default:
+        return isNaN(nextHeadPosition);
+    }
+
+  },
+
+  checkIfGameOver: function(nextHeadPosition) {
+    if (controller.snakeDivs.indexOf(nextHeadPosition) === -1 && !controller.checkOutOfBounds(nextHeadPosition)) {
+      return false;
+    }
+    else {
+      return true;
+    }
   },
 
   updatePosition: function() {
@@ -137,27 +176,37 @@ var controller = {
     $('.head').addClass('snake-body').removeClass('head');
 
     // Update head position
-    controller.headPosition += controller.vel[0];
-    controller.headPosition += (controller.vel[1] * 20);
-    $('#' + controller.headPosition).addClass('head');
+    nextHeadPosition = controller.headPosition
+    nextHeadPosition += controller.vel[0];
+    nextHeadPosition += (controller.vel[1] * 20);
 
-    // Remove tail from snakeDivs
-    tail = controller.snakeDivs.pop();
-    $('#' + tail).removeClass('snake-body');
+    if (controller.checkIfGameOver(nextHeadPosition)) {
+      clearInterval(controller.snakeInterval);
+      alert("Game Over");
+    }
+    else {
+      $('#' + nextHeadPosition).addClass('head');
+      // Remove tail from snakeDivs
+      tail = controller.snakeDivs.pop();
+      $('#' + tail).removeClass('snake-body');
 
-    // Check if position is snake food
-    // this.eatSnakeFood();
+      // Check if position is snake food
+      controller.eatSnakeFood();
 
-    // Spawn snake food
-    view.buildSnakeFood();
+      // Spawn snake food
+      view.buildSnakeFood();
+      console.log(nextHeadPosition);
+    }
   },
 
   eatSnakeFood: function() {
     if (controller.headPosition === parseInt($('.food').attr("id"))) {
       controller.snakeDivs.push($('food').attr('id'));
+      model.score += 1;
       $('.food').removeClass('food');
-      this.updateInterval *= 0.95;
-      return true;
+      this.updateInterval *= 0.85;
+      clearInterval(controller.snakeInterval);
+      controller.snakeInterval = setInterval( controller.updatePosition, controller.updateInterval);
       }
     else {
       return false;
