@@ -76,9 +76,9 @@ var view = {
       randomGridId = this.getRandomInt(1, 400);
       while( randomGridId != controller.headPosition && controller.snakeDivs.indexOf(randomGridId) != -1){
         randomGridId = this.getRandomInt(1, 400);
-      };
-      $('#' + randomGridId).addClass('food')
-    };
+      }
+      $('#' + randomGridId).addClass('food');
+    }
 
   },
 
@@ -95,8 +95,11 @@ var model = {};
 var controller = {
 
   snakeDivs: [],
-  updateInterval: 5000,
-  snakeInterval: setInterval(function(){ controller.updatePosition(); }, this.updateInterval),
+  updateInterval: 500,
+  snakeInterval: 1,
+  
+  // snakeInterval: setInterval(function(){ controller.updatePosition(); }, this.updateInterval),
+  // snakeInterval: setInterval(function(){ this.updatePosition();}, controller.updateInterval),
 
   headPosition: parseInt($('.head').attr("id")),
 
@@ -111,7 +114,13 @@ var controller = {
 
   playGame: function() {
     console.log('play ball!');
-    this.snakeInterval;
+    controller.snakeInterval = setInterval(function(){ controller.updatePosition();}, controller.updateInterval);
+    if ( controller.eatSnakeFood() ){
+      clearInterval(controller.snakeInterval);
+      controller.snakeInterval = setInterval( controller.updatePosition, controller.updateInterval);
+    }
+
+    console.log(this.updateInterval);
 
   },
 
@@ -137,7 +146,7 @@ var controller = {
     $('#' + tail).removeClass('snake-body');
 
     // Check if position is snake food
-    this.eatSnakeFood();
+    // this.eatSnakeFood();
 
     // Spawn snake food
     view.buildSnakeFood();
@@ -145,15 +154,21 @@ var controller = {
 
   eatSnakeFood: function() {
     if (controller.headPosition === parseInt($('.food').attr("id"))) {
-      controller.snakeDivs.push($('food').attr('id'))
-      $('.food').removeClass('food')
+      controller.snakeDivs.push($('food').attr('id'));
+      $('.food').removeClass('food');
       this.updateInterval *= 0.95;
-      clearInterval(snakeInterval);
-      snakeInterval;
-    };
+      return true;
+      }
+    else {
+      return false;
+    }
+      // clearInterval(controller.snakeInterval);
+      // controller.snakeInterval = setInterval( controller.updatePosition, controller.updateInterval);
+      // console.log(snakeInterval);
+      // console.log(this.updateInterval);
   }
 
-}
+};
 
 
 // Create head at center of grid
