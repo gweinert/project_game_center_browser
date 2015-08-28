@@ -21,20 +21,46 @@ var view = {
   keyListener: function() {
     $(document).keydown(function(e) {
     switch(e.which) {
+        //if/elses disallow 180 degree turnarounds
+        
+        //right
         case 37:
-          controller.vel = [-1, 0];
+          if ( controller.vel[0] == 1 && controller.snakeDivs.length > 0){
+            controller.vel = [1, 0];
+          }
+          else {
+            controller.vel = [-1, 0];
+          }
           break;
 
+        //down
         case 38:
-          controller.vel = [0, -1]
+          if ( controller.vel[1] == 1&& controller.snakeDivs.length > 0){
+            controller.vel = [0, 1];
+          }
+          else{
+            controller.vel = [0, -1];
+          }
           break;
 
+        //left
         case 39:
-          controller.vel = [1, 0]
+          if ( controller.vel[0] == -1 && controller.snakeDivs.length > 0){
+            controller.vel = [-1, 0];
+          }
+          else{
+            controller.vel = [1, 0];
+          }
         break;
 
+        //up
         case 40:
-          controller.vel = [0, 1]
+          if ( controller.vel[1] == -1 && controller.snakeDivs.length > 0){
+            controller.vel = [0, -1];
+          }
+          else{
+            controller.vel = [0, 1];
+          }
         break;
 
         default: return; // exit this handler for other keys
@@ -43,15 +69,31 @@ var view = {
     e.preventDefault(); // prevent the default action (scroll / move caret)
 });
 
+  },
+
+  buildSnakeFood: function(){
+    randomGridId = getRandomInt(1, 400);
+    while( randomGridId != getRandomInt){
+      randomGridId = getRandomInt(1, 400);
+    }
+
+  },
+
+  // isSnakeDiv
+
+  getRandomInt: function (min, max) {
+  return Math.floor(Math.random() * (max - min)) + min;
   }
 
-}
+};
 
-var model = {}
+var model = {};
 
 var controller = {
 
-  snakeDivs: [191, 192, 193],
+  snakeDivs: [],
+
+  headPosition: parseInt($('.head').attr("id")),
 
   init: function() {
     view.buildGrid();
@@ -70,7 +112,8 @@ var controller = {
   updatePosition: function() {
 
     // Get position of head
-    headPosition = parseInt($('.head').attr("id"));
+    // headPosition = parseInt($('.head').attr("id"));
+    headPosition = controller.headPosition;
 
     // Add old head position to front of snakeDivs
     controller.snakeDivs.unshift(headPosition);
