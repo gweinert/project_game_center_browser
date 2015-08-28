@@ -51,7 +51,7 @@ var model = {}
 
 var controller = {
 
-  snakeDivs: [191, 192],
+  snakeDivs: [191, 192, 193],
 
   init: function() {
     view.buildGrid();
